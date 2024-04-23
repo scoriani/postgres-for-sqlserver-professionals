@@ -1,0 +1,11 @@
+
+curl -d '{"id":"1","name":"my list 1","description":"my description 1"}' -H 'Content-Type: application/json' http://localhost:3100/lists
+
+curl -d '{"id":"2","name":"my list 2","description":"my description 2"}' -H 'Content-Type: application/json' http://localhost:3100/lists
+
+curl http://localhost:3100/lists
+
+curl -d '{"id":"1","listId": "5ed12320-8ae4-46a0-a08f-5ae95bcd4d34", "name": "my item 1 of list 1","description": "my random description","state": "todo","dueDate": "2024-03-19T20:41:54.952Z","completedDate": "2024-03-19T20:41:54.952Z"}' -H 'Content-Type: application/json' http://localhost:3100/lists/5ed12320-8ae4-46a0-a08f-5ae95bcd4d34/items
+
+
+curl http://localhost:3100/lists/5ed12320-8ae4-46a0-a08f-5ae95bcd4d34/items
