@@ -1,7 +1,7 @@
 -- pg_tgrm which allows index search for %TXT% queries and REGEXP querie
 -- Dataset from Kaggle: https://www.kaggle.com/datasets/wilmerarltstrmberg/recipe-dataset-over-2m
 
-SELECT * FROM recipes LIMIT 1;
+select * from recipes limit 10;
 
 -- Get Recipe count
 select count(*) from recipes;
@@ -106,7 +106,7 @@ postgres=# explain analyze select title from recipes where title ~* '(strawberry
 
 -- Down from 1640.475 ms to 281.674 ms.
 
-
+create database azurerestaurant;
 
 -- But wait, PostgreSQL is also supposed to be good with JSON right? Let's convert our whole table into json per row!
 -- It's easy to convert a whole row into json:
@@ -175,7 +175,6 @@ postgres=# explain analyze select data->'ingredients' from recipes_json where da
 
 
 -- We can, but it feels slow. Look how many rows were removed by filter!
-
 
 -- Can we index this somehow?
 CREATE INDEX json_idx ON recipes_json USING GIN (data jsonb_path_ops);
