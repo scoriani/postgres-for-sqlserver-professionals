@@ -1,13 +1,7 @@
--- pg_tgrm which allows index search for %TXT% queries and REGEXP queries (see photos)!
-
-
+-- pg_tgrm which allows index search for %TXT% queries and REGEXP querie
 -- Dataset from Kaggle: https://www.kaggle.com/datasets/wilmerarltstrmberg/recipe-dataset-over-2m
 
-SELECT row_to_json(recipes) FROM recipes;
-
-select * from recipes_json limit 1;
-
-
+SELECT * FROM recipes LIMIT 1;
 
 -- Get Recipe count
 select count(*) from recipes;
@@ -64,7 +58,7 @@ demodb=> show azure.extensions;
 postgres=# create extension pg_trgm ;
 CREATE EXTENSION
 
-
+DROP INDEX trgm_idx;
 -- Now let's add indexes! -- took about 15 seconds
 CREATE INDEX trgm_idx ON recipes USING GIN (title gin_trgm_ops);
 
