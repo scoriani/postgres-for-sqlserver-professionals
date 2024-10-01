@@ -3,6 +3,11 @@
 
 -- Dataset from Kaggle: https://www.kaggle.com/datasets/wilmerarltstrmberg/recipe-dataset-over-2m
 
+SELECT row_to_json(recipes) FROM recipes;
+
+select * from recipes_json limit 1;
+
+
 
 -- Get Recipe count
 select count(*) from recipes;

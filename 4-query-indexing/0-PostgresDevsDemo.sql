@@ -1,18 +1,19 @@
 -- Show available extensions
 select * from pg_available_extensions;
 
--- SHow extensions
+-- Azure Storage extension
+
+-- Show extensions
 show azure.extensions;
 
 -- CREATE EXTENSION
 CREATE EXTENSION azure_storage;
-
 -- Add Account
 SELECT azure_storage.account_add('<account>', '<key>');
 
 -- Grant Permissions
 GRANT azure_storage_admin TO support;
-GRANT pg_read_server_files  to denzilr
+GRANT pg_read_server_files  to scoriani;
 
 SELECT * FROM azure_storage.account_list();
 
@@ -21,9 +22,9 @@ SELECT * FROM azure_storage.account_list();
 SELECT path, bytes, pg_size_pretty(bytes), content_type
 FROM azure_storage.blob_list('<account>','demo');
 
+-- PostgreSQL Data Types and Indexes
+
 DROP TABLE recipes;
-
-
 -- Recipe Table
 CREATE TABLE recipes (
     title text,
@@ -43,7 +44,6 @@ WITH (FORMAT 'csv', header);
 select * from recipes
 limit 10;
 
-
 CREATE TABLE employees (CustomerId int,LastName varchar(50),FirstName varchar(50));
 INSERT INTO employees 
 SELECT * FROM azure_storage.blob_get('<sccount>','mytestblob','employee.csv',options:= azure_storage.options_csv_get(header=>true)) AS res (
@@ -53,9 +53,7 @@ SELECT * FROM azure_storage.blob_get('<sccount>','mytestblob','employee.csv',opt
 
 SELECT azure_storage.blob_put('<account>', 'mytestblob', 'employee2.csv', res) FROM (SELECT EmployeeId,LastName FROM employees) res;
 
-
-select * from recipes_json limit 1;
-
+-- GeoSpatial data types
 
 create extension postgis;
 
@@ -74,6 +72,8 @@ SELECT location_name
 FROM locations
 WHERE ST_DWithin(geom, ST_GeomFromText('POINT(-73.980357 40.785091)', 4326), 1000);
 
+
+-- Range Types
 
 -- Creating Range types
 DROP TABLE IF EXISTS reservation;
@@ -99,9 +99,10 @@ SELECT int4range(15, 20) * int4range(15, 25);
 -- Is the range empty?
 SELECT isempty(numrange(1, 5));
 
--- Create  constraint
+-- Create  range constraint
 -- Key is room
 CREATE EXTENSION btree_gist;
+
 CREATE TABLE room_reservation (
     room text,
     during tsrange,
@@ -119,9 +120,7 @@ INSERT INTO room_reservation VALUES
 INSERT INTO room_reservation VALUES
     ('123B', '[2010-01-01 14:30, 2010-01-01 15:30)');
 
-
-
--- Inheritence:
+-- Table Inheritence:
 DROP TABLE IF EXISTS conference;
 DROP TABLE IF EXISTS pass_conference
 
@@ -135,8 +134,7 @@ CREATE TABLE pass_conference (
     pass_session_id    text NOT NULL,
 	pass_room_number text NOT NULL
 ) INHERITS (conference);
-										 
-										 
+										 								 
 INSERT INTO conference (session_id,session_title) VALUES (1,'Intro to postgres');
 
 INSERT INTO pass_conference
@@ -146,7 +144,6 @@ INSERT INTO pass_conference
 select * from conference;
 select * from pass_conference;
 										 
-create extension postgis
-SELECT PostGIS_Full_Version()
+create extension postgis;
 
-select * from spatial_ref_sys
+SELECT PostGIS_Full_Version()
