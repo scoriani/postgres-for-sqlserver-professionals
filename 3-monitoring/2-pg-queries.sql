@@ -20,8 +20,6 @@ select * from pg_stat_database where datname='bench';
 select * from pg_stat_all_indexes where relname LIKE 'pgbench%';
 
 
-shared_preload_libraries = 'pg_stat_statements'
-
 # Increase the max size of the query strings Postgres records
 track_activity_query_size = 2048
 
@@ -32,8 +30,57 @@ create extension pg_stat_statements;
 select * from pg_stat_statements where dbid=16388 order by calls desc;
 select pg_stat_statements_reset();
 
-create database bench;
 
+CREATE EXTENSION pg_stat_statements;
+
+SELECT userid,query,calls, total_exec_time, mean_exec_time 
+FROM pg_stat_statements WHERE query LIKE '%pgbench%';
+
+-- query server activity
+SELECT * 
+FROM pg_stat_activity 
+WHERE usename='scoriani' LIMIT 50;
+
+CREATE EXTENSION pg_buffercache;
+
+-- shared buffers sumary
+SELECT (CAST (buffers_used+buffers_unused AS BIGINT)*8192)/1024/1024 AS total_buffers, * 
+FROM pg_buffercache_summary();
+
+SHOW shared_buffers;
+
+-- show database size by table in postgresql
+SELECT 
+  table_schema, 
+  table_name,
+  (pg_relation_size('"'||table_schema||'"."'||table_name||'"'))/1024 AS table_size_kb
+FROM information_schema.tables
+WHERE tables.table_schema NOT IN ('pg_catalog','information_schema')
+ORDER BY 3 DESC
+
+-- shared buffers usage by relname
+SELECT n.nspname, c.relname, (count(*)*8192)/1024 AS buffers_in_kb
+             FROM pg_buffercache b JOIN pg_class c
+             ON b.relfilenode = pg_relation_filenode(c.oid) AND
+                b.reldatabase IN (0, (SELECT oid FROM pg_database
+                                      WHERE datname = current_database()))
+             JOIN pg_namespace n ON n.oid = c.relnamespace
+             WHERE nspname not in ('pg_catalog','information_schema')
+             GROUP BY n.nspname, c.relname
+             ORDER BY 3 DESC
+             LIMIT 10;
+
+
+-- Query Store query stats views
+SELECT * FROM query_store.qs_view 
+WHERE db_id = (SELECT oid FROM pg_database WHERE datname = 'benchdb')
+ORDER BY end_time, calls DESC  LIMIT 50;
+
+-- Query Store wait stats views
+SELECT * FROM  query_store.pgms_wait_sampling_view 
+WHERE db_id = (SELECT oid FROM pg_database WHERE datname = 'benchdb')
+--AND query_id = 7306841493395405762
+ORDER BY end_time DESC limit 50;
 
 
 # Roles and role memberships
@@ -85,3 +132,5 @@ order by pg_table_size(a.oid) desc limit 40;
 # Minimum and maximum value of shared buffers.
 select name, setting, min_val, max_val, context from
 pg_settings where name='shared_buffers';
+
+
