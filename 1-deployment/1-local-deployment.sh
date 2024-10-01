@@ -27,6 +27,11 @@ psql
 # or
 ALTER USER postgres WITH PASSWORD '<password>';
 
+# create a new user using the createuser utility in /usr/lib/postgresql/16/bin/
+createuser parallels
+
+psql -c "ALTER USER parallels WITH SUPERUSER;"
+
 # edit /etc/postgresql/16/main/pg_hba.conf to allow password authentication
 # Database administrative login by Unix domain socket
 local   all             postgres                                md5
